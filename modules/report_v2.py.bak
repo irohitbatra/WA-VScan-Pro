@@ -1,0 +1,145 @@
+import os, html, json
+from datetime import datetime
+
+def generate_report(target, findings, duration, out_path):
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    severities = ["Critical","High","Medium","Low","Info"]
+    counts = {s:0 for s in severities}
+    rows = []
+
+    for f in findings or []:
+        s = f.get("severity","Info")
+        if s not in counts: s = "Info"
+        counts[s] += 1
+        rows.append(f"""
+        <tr>
+            <td style="width:80px;max-width:80px;overflow:hidden;text-overflow:ellipsis">{html.escape(str(f.get('id','')))}</td>
+            <td style="width:220px;max-width:220px;overflow:hidden;text-overflow:ellipsis">{html.escape(str(f.get('name','')))}</td>
+            <td style="width:110px;max-width:110px">{html.escape(str(s))}</td>
+            <td style="min-width:200px;max-width:300px;word-break:break-word">{html.escape(str(f.get('finding','')))}</td>
+            <td style="min-width:300px;max-width:520px">
+              <div class="detail-wrap"><pre class="detail">{html.escape(str(f.get('details','')))}</pre></div>
+            </td>
+        </tr>
+        """)
+
+    rows_html = "\n".join(rows) if rows else "<tr><td colspan='5' style='text-align:center;padding:18px'>No findings.</td></tr>"
+    js_data = json.dumps([counts[s] for s in severities])
+    ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
+    html_out = f"""<!doctype html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>WA-VScan Pro – Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{{--bg:#071023;--card:linear-gradient(180deg,#071023,#0b1430);--muted:#98a8bf;--accent:#00ff99}}
+body{{background:var(--bg);color:#dbe9ff;font-family:Inter, Arial, sans-serif;margin:18px}}
+.card{{background:var(--card);padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:16px}}
+.header{{display:flex;align-items:center;gap:12px}}
+.logo{{width:56px;height:56px;background:linear-gradient(135deg,#001b2b,#003b5c);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700}}
+.title h1{{margin:0;font-size:20px}}
+.meta{{color:var(--muted);font-size:13px}}
+.grid{{display:grid;grid-template-columns:1fr 360px;gap:18px}}
+.table-wrap{{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  margin-top:12px;
+}}
+
+/* table styling */
+table{{width:100%;border-collapse:collapse;table-layout:fixed}}
+th,td{{padding:10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;font-size:13px}}
+th{{color:var(--muted);font-weight:600; background: rgba(255,255,255,0.02)}}
+
+/* make long text wrap and not push layout */
+td{{word-break:break-word;overflow-wrap:anywhere}}
+pre.detail{{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;margin:0;font-family:monospace;font-size:12px;color:#cfeeff}}
+
+/* constrain details area with scroll if too long */
+.detail-wrap{{max-height:160px;overflow:auto;border-radius:8px;padding:6px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02)}}
+
+/* severity badges */
+.sev{{padding:5px 8px;border-radius:6px;font-weight:700;display:inline-block}}
+.sev.critical{{background:#ff4d4f;color:#071618}}
+.sev.high{{background:#ff8a4b;color:#071618}}
+.sev.medium{{background:#ffd166;color:#071618}}
+.sev.low{{background:#6be6a4;color:#071618}}
+.sev.info{{background:#6fb3ff;color:#071618}}
+
+/* chart box */
+.chart-box{{width:160px;height:160px;margin:0 auto}}
+
+/* footer */
+.footer{{text-align:right;font-size:11px;color:#8fa0bb;margin-top:12px}}
+
+/* responsive */
+@media (max-width:900px){{.grid{{grid-template-columns:1fr}}.chart-box{{width:140px;height:140px}}}}
+</style>
+</head>
+<body>
+
+<div class="card header">
+  <div class="logo">WA</div>
+  <div style="flex:1">
+    <div class="title"><h1>WA-VScan Pro – Professional Report</h1></div>
+    <div class="meta">Target: <strong>{html.escape(target)}</strong> • Generated: {ts}</div>
+  </div>
+  <div style="text-align:right">
+    <div class="meta">Duration: <strong>{duration:.2f}s</strong></div>
+    <div style="margin-top:6px" class="meta">Total findings: <strong>{sum(counts.values())}</strong></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;color:var(--accent)">Executive summary</h3>
+      <div class="meta">Automated scan results. Validate each finding manually before applying remediations.</div>
+      <div style="margin-top:8px" class="meta">
+        <strong>Counts:</strong> Critical: {counts['Critical']}, High: {counts['High']}, Medium: {counts['Medium']}, Low: {counts['Low']}, Info: {counts['Info']}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px 0">Findings</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:80px">ID</th><th style="width:220px">Name</th><th style="width:110px">Severity</th><th style="min-width:200px">Finding</th><th style="min-width:300px">Details</th></tr>
+          </thead>
+          <tbody>
+            {rows_html}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="text-align:center">
+      <h3 style="margin:0 0 8px 0">Severity distribution</h3>
+      <div class="chart-box"><canvas id="chart" width="160" height="160"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Made with <span style="color:#ff6b6b">❤</span> by Rohit Batra</div>
+
+<script>
+const data = {
+  labels: ['Critical','High','Medium','Low','Info'],
+  datasets: [{ data: %s, backgroundColor: ['#ff4d4f','#ff8a4b','#ffd166','#6be6a4','#6fb3ff'] }]
+};
+new Chart(document.getElementById('chart'), { type: 'doughnut', data: data, options: { cutout: '55%', plugins: { legend: { display: false } } } });
+</script>
+
+</body>
+</html>
+""" % js_data
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(html_out)
+    return out_path
