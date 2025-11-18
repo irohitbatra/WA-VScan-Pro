@@ -110,15 +110,16 @@ results/results.csv
 ### 🔹 GUI Interface
 
 ```
-![GUI Screenshot](/home/kali/Downloads/WA-VScan-Pro-Final/Report/Gui.png)
-```<img width="1920" height="1080" alt="Gui" src="https://github.com/user-attachments/assets/4fb45bf3-badd-4d65-a59f-7cd59f1e27e3" />
+![GUI Screenshot]
 
+<img width="1920" height="1080" alt="Gui" src="https://github.com/user-attachments/assets/45f0abd2-c55a-4ef4-96d5-3211a19da3fb" />
 
 ### 🔹 Professional HTML Report
 ```
-![Report Screenshot]<img width="1920" height="1080" alt="Report" src="https://github.com/user-attachments/assets/b6564375-830c-4ace-949a-e5336921f0d7" />
-(/home/kali/Downloads/WA-VScan-Pro-Final/Report.png)
-```
+![Report Screenshot]
+
+```<img width="1920" height="933" alt="Report" src="https://github.com/user-attachments/assets/3bf87cbb-6645-43db-98aa-d0cdd6192693" />
+
 
 ---
 
