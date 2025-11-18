@@ -111,11 +111,13 @@ results/results.csv
 
 ```
 ![GUI Screenshot](/home/kali/Downloads/WA-VScan-Pro-Final/Report/Gui.png)
-```
+```<img width="1920" height="1080" alt="Gui" src="https://github.com/user-attachments/assets/4fb45bf3-badd-4d65-a59f-7cd59f1e27e3" />
+
 
 ### 🔹 Professional HTML Report
 ```
-![Report Screenshot](/home/kali/Downloads/WA-VScan-Pro-Final/Report.png)
+![Report Screenshot]<img width="1920" height="1080" alt="Report" src="https://github.com/user-attachments/assets/b6564375-830c-4ace-949a-e5336921f0d7" />
+(/home/kali/Downloads/WA-VScan-Pro-Final/Report.png)
 ```
 
 ---
